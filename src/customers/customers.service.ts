@@ -65,6 +65,11 @@ export class CustomersService {
     const deletedCustomer = await this.customerModel.findByIdAndRemove(
       customerId,
     );
+
+    if (!deletedCustomer) {
+      throw new NotFoundException('Customer does not exist');
+    }
+
     return deletedCustomer;
   }
 }
