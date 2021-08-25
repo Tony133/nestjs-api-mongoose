@@ -3,6 +3,7 @@ import { CustomersService } from './customers.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { NotFoundException } from '@nestjs/common';
 
 const mockCustomer: any = {
   firstName: 'firstName#1',
@@ -18,8 +19,8 @@ describe('CustomersService', () => {
   let service: CustomersService;
   const paginationQueryDto: PaginationQueryDto = {
     limit: 10,
-    offset: 1
-  }; 
+    offset: 1,
+  };
 
   const createCustomerDto: CreateCustomerDto = {
     firstName: 'firstName#1',
@@ -30,7 +31,7 @@ describe('CustomersService', () => {
     description: 'description #1',
     organizations: 'organization #1',
   };
-    
+
   const updateCustomerDto: UpdateCustomerDto = {
     firstName: 'firstName update',
     lastName: 'lastName update',
@@ -44,7 +45,7 @@ describe('CustomersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CustomersService, 
+        CustomersService,
         {
           provide: CustomersService,
           useValue: {
@@ -52,9 +53,9 @@ describe('CustomersService', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
-            remove: jest.fn()          
-          }    
-        }
+            remove: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -74,7 +75,9 @@ describe('CustomersService', () => {
 
     it('should throw if CustomerModel findAll throws', async () => {
       jest.spyOn(service, 'findAll').mockRejectedValueOnce(new Error());
-      await expect(service.findAll(paginationQueryDto)).rejects.toThrow(new Error())
+      await expect(service.findAll(paginationQueryDto)).rejects.toThrow(
+        new Error(),
+      );
     });
 
     it('should return customer on success', async () => {
@@ -92,12 +95,16 @@ describe('CustomersService', () => {
     });
 
     it('should throw if CustomerSchema findOne throws', async () => {
-      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error());
-      await expect(service.findOne('anyid')).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'findOne')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.findOne('anyid')).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
 
     it('should return a customer on success', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockCustomer)
+      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockCustomer);
       const response = await service.findOne('anyid');
       expect(response).toEqual(mockCustomer);
     });
@@ -111,8 +118,12 @@ describe('CustomersService', () => {
     });
 
     it('should throw if CustomerSchema create throws', async () => {
-      jest.spyOn(service, 'create').mockRejectedValueOnce(new Error());
-      await expect(service.create(createCustomerDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'create')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.create(createCustomerDto)).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
 
     it('should return a customer on success', async () => {
@@ -130,8 +141,12 @@ describe('CustomersService', () => {
     });
 
     it('should throw if CustomerSchema throws', async () => {
-      jest.spyOn(service, 'update').mockRejectedValueOnce(new Error());
-      await expect(service.update('anyid', updateCustomerDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'update')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.update('anyid', updateCustomerDto)).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
   });
 
@@ -143,8 +158,12 @@ describe('CustomersService', () => {
     });
 
     it('should throw if CustomerSchema remove throws', async () => {
-      jest.spyOn(service, 'remove').mockRejectedValueOnce(new Error());
-      await expect(service.remove('anyid')).rejects.toThrow(new Error())
+      jest
+        .spyOn(service, 'remove')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.remove('anyid')).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
   });
 });

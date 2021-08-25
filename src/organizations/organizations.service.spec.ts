@@ -3,6 +3,7 @@ import { OrganizationsService } from './organizations.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { NotFoundException } from '@nestjs/common';
 
 const mockOrganization: any = {
   name: 'name #1',
@@ -15,22 +16,22 @@ describe('OrganizationsService', () => {
   let service: OrganizationsService;
   const paginationQueryDto: PaginationQueryDto = {
     limit: 10,
-    offset: 1
-  }; 
+    offset: 1,
+  };
 
   const createOrganizationDto: CreateOrganizationDto = {
     name: 'name #1',
     address: 'address #1',
     description: 'description #1',
     customers: 'customer #1',
-  };  
+  };
 
   const updateOrganizationDto: UpdateOrganizationDto = {
     name: 'name update',
     address: 'address update',
     description: 'description update',
     customers: 'customer update',
-  };  
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,9 +44,9 @@ describe('OrganizationsService', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
-            remove: jest.fn()          
+            remove: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -64,8 +65,12 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if OrganizationSchema findAll throws', async () => {
-      jest.spyOn(service, 'findAll').mockRejectedValueOnce(new Error());
-      await expect(service.findAll(paginationQueryDto)).rejects.toThrow(new Error())
+      jest
+        .spyOn(service, 'findAll')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.findAll(paginationQueryDto)).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
 
     it('should return organization on success', async () => {
@@ -83,12 +88,16 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if OrganizationSchema findOne throws', async () => {
-      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error());
-      await expect(service.findOne('anyid')).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'findOne')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.findOne('anyid')).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
 
     it('should return a organization on success', async () => {
-      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockOrganization)
+      jest.spyOn(service, 'findOne').mockResolvedValueOnce(mockOrganization);
       const response = await service.findOne('anyid');
       expect(response).toEqual(mockOrganization);
     });
@@ -102,8 +111,12 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if OrganizationSchema create throws', async () => {
-      jest.spyOn(service, 'create').mockRejectedValueOnce(new Error());
-      await expect(service.create(createOrganizationDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'create')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.create(createOrganizationDto)).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
 
     it('should return a organization on success', async () => {
@@ -121,8 +134,12 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if OrganizationSchema throws', async () => {
-      jest.spyOn(service, 'update').mockRejectedValueOnce(new Error());
-      await expect(service.update('anyid', updateOrganizationDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(service, 'update')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        service.update('anyid', updateOrganizationDto),
+      ).rejects.toThrow(new NotFoundException());
     });
   });
 
@@ -134,8 +151,12 @@ describe('OrganizationsService', () => {
     });
 
     it('should throw if OrganizationSchema remove throws', async () => {
-      jest.spyOn(service, 'remove').mockRejectedValueOnce(new Error());
-      await expect(service.remove('anyid')).rejects.toThrow(new Error())
+      jest
+        .spyOn(service, 'remove')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(service.remove('anyid')).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
   });
 });

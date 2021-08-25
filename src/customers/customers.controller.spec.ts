@@ -1,4 +1,8 @@
-import { BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomersController } from './customers.controller';
 import { CustomersService } from './customers.service';
@@ -11,18 +15,27 @@ class MockResponse {
   constructor() {
     this.res = {};
   }
-  status = jest.fn().mockReturnThis().mockImplementationOnce((code) => {
-     this.res.code = code;
-    return this;
-  });
-  send = jest.fn().mockReturnThis().mockImplementationOnce((message) => {
-    this.res.message = message;
-    return this;
-  });
-  json = jest.fn().mockReturnThis().mockImplementationOnce((json) => {
-    this.res.json = json;
-    return this;
-  });
+  status = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((code) => {
+      this.res.code = code;
+      return this;
+    });
+  send = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((message) => {
+      this.res.message = message;
+      return this;
+    });
+  json = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((json) => {
+      this.res.json = json;
+      return this;
+    });
 }
 
 describe('Customers Controller', () => {
@@ -30,8 +43,8 @@ describe('Customers Controller', () => {
   let customersService: CustomersService;
   const paginationQueryDto: PaginationQueryDto = {
     limit: 10,
-    offset: 1
-  }; 
+    offset: 1,
+  };
 
   const response = new MockResponse();
 
@@ -77,9 +90,9 @@ describe('Customers Controller', () => {
             findAll: jest.fn(() => []),
             findOne: jest.fn(() => {}),
             update: jest.fn(() => {}),
-            remove: jest.fn(() => {}),      
-          }   
-        }
+            remove: jest.fn(() => {}),
+          },
+        },
       ],
     }).compile();
 
@@ -98,11 +111,15 @@ describe('Customers Controller', () => {
     });
 
     it('should throw if CustomersService findAll throws', async () => {
-      jest.spyOn(customersService, 'findAll').mockRejectedValueOnce(new Error());
-      await expect(customersController.getAllCustomer(response, paginationQueryDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(customersService, 'findAll')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        customersController.getAllCustomer(response, paginationQueryDto),
+      ).rejects.toThrow(new NotFoundException());
     });
 
-    it('should return customer on success', async () => { 
+    it('should return customer on success', async () => {
       await customersController.getAllCustomer(response, paginationQueryDto);
       expect(customersService.findAll).toHaveBeenCalled();
     });
@@ -111,17 +128,23 @@ describe('Customers Controller', () => {
   describe('getCustomer()', () => {
     it('should call method findOne in CustomersService with correct value', async () => {
       const findSpy = jest.spyOn(customersService, 'findOne');
-      await customersController.getCustomer(response,'anyid');
+      await customersController.getCustomer(response, 'anyid');
       expect(findSpy).toHaveBeenCalledWith('anyid');
     });
 
     it('should throw if CustomersService findOne throws', async () => {
-      jest.spyOn(customersService, 'findOne').mockRejectedValueOnce(new Error());
-      await expect(customersController.getCustomer(response, 'anyid')).rejects.toThrow(new Error());
+      jest
+        .spyOn(customersService, 'findOne')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        customersController.getCustomer(response, 'anyid'),
+      ).rejects.toThrow(new NotFoundException());
     });
 
     it('should return a customer on success', async () => {
-      jest.spyOn(customersService, 'findOne').mockResolvedValueOnce(mockCustomer);
+      jest
+        .spyOn(customersService, 'findOne')
+        .mockResolvedValueOnce(mockCustomer);
       await customersController.getCustomer(response, 'anyid');
       expect(customersService.findOne).toHaveBeenCalled();
     });
@@ -132,11 +155,11 @@ describe('Customers Controller', () => {
       const createSpy = jest.spyOn(customersService, 'create');
       await customersController.addCustomer(response, createCustomerDto);
       expect(createSpy).toHaveBeenCalledWith(createCustomerDto);
-    })
+    });
 
     it('should return a customer on success', async () => {
       const createCustomerSpy = jest.spyOn(customersService, 'create');
-      await customersController.addCustomer(response, createCustomerDto)
+      await customersController.addCustomer(response, createCustomerDto);
       expect(createCustomerSpy).toHaveBeenCalledWith(createCustomerDto);
     });
   });
@@ -144,7 +167,11 @@ describe('Customers Controller', () => {
   describe('updateCustomer()', () => {
     it('should call method update in CustomersService with correct values', async () => {
       const updateSpy = jest.spyOn(customersService, 'update');
-      await customersController.updateCustomer(response, 'anyid', updateCustomerDto);
+      await customersController.updateCustomer(
+        response,
+        'anyid',
+        updateCustomerDto,
+      );
       expect(updateSpy).toHaveBeenCalledWith('anyid', updateCustomerDto);
     });
   });
@@ -154,11 +181,15 @@ describe('Customers Controller', () => {
       const deleteSpy = jest.spyOn(customersService, 'remove');
       await customersController.deleteCustomer(response, 'anyid');
       expect(deleteSpy).toHaveBeenCalledWith('anyid');
-    })
+    });
 
     it('should throw error if id in CustomersService not exists', async () => {
-      jest.spyOn(customersService, 'remove').mockRejectedValueOnce(new Error());
-      await expect(customersController.deleteCustomer(response, 'anyid')).rejects.toThrow(new Error())
+      jest
+        .spyOn(customersService, 'remove')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        customersController.deleteCustomer(response, 'anyid'),
+      ).rejects.toThrow(new NotFoundException());
     });
   });
 });

@@ -4,24 +4,34 @@ import { OrganizationsService } from './organizations.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { NotFoundException } from '@nestjs/common';
 
 class MockResponse {
   res: any;
   constructor() {
     this.res = {};
   }
-  status = jest.fn().mockReturnThis().mockImplementationOnce((code) => {
-     this.res.code = code;
-    return this;
-  });
-  send = jest.fn().mockReturnThis().mockImplementationOnce((message) => {
-    this.res.message = message;
-    return this;
-  });
-  json = jest.fn().mockReturnThis().mockImplementationOnce((json) => {
-    this.res.json = json;
-    return this;
-  });
+  status = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((code) => {
+      this.res.code = code;
+      return this;
+    });
+  send = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((message) => {
+      this.res.message = message;
+      return this;
+    });
+  json = jest
+    .fn()
+    .mockReturnThis()
+    .mockImplementationOnce((json) => {
+      this.res.json = json;
+      return this;
+    });
 }
 
 describe('Organizations Controller', () => {
@@ -29,7 +39,7 @@ describe('Organizations Controller', () => {
   let organizationsService: OrganizationsService;
   const paginationQueryDto: PaginationQueryDto = {
     limit: 10,
-    offset: 1
+    offset: 1,
   };
 
   const response = new MockResponse();
@@ -60,13 +70,16 @@ describe('Organizations Controller', () => {
             findOne: jest.fn(() => {}),
             update: jest.fn(() => {}),
             remove: jest.fn(() => {}),
-          }
-        }
-      ]
+          },
+        },
+      ],
     }).compile();
 
-    organizationsController = module.get<OrganizationsController>(OrganizationsController);
-    organizationsService = module.get<OrganizationsService>(OrganizationsService);
+    organizationsController = module.get<OrganizationsController>(
+      OrganizationsController,
+    );
+    organizationsService =
+      module.get<OrganizationsService>(OrganizationsService);
   });
 
   it('should be defined', () => {
@@ -75,30 +88,47 @@ describe('Organizations Controller', () => {
 
   describe('getAllOrganization()', () => {
     it('should call method findAll in OrganizationsService', async () => {
-      await organizationsController.getAllOrganization(response, paginationQueryDto);
+      await organizationsController.getAllOrganization(
+        response,
+        paginationQueryDto,
+      );
       expect(organizationsService.findAll).toHaveBeenCalled();
     });
 
     it('should throw if OrganizationsService findAll throws', async () => {
-      jest.spyOn(organizationsService, 'findAll').mockRejectedValueOnce(new Error());
-      await expect(organizationsController.getAllOrganization(response, paginationQueryDto)).rejects.toThrow(new Error());
+      jest
+        .spyOn(organizationsService, 'findAll')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        organizationsController.getAllOrganization(
+          response,
+          paginationQueryDto,
+        ),
+      ).rejects.toThrow(new NotFoundException());
     });
 
-    it('should return organization on success', async () => { 
-      await organizationsController.getAllOrganization(response, paginationQueryDto);
+    it('should return organization on success', async () => {
+      await organizationsController.getAllOrganization(
+        response,
+        paginationQueryDto,
+      );
       expect(organizationsService.findAll).toHaveBeenCalled();
     });
   });
 
   describe('getOrganization()', () => {
     it('should call method findOne in OrganizationsService id with correct value', async () => {
-      await organizationsController.getOrganization(response,'anyid');
+      await organizationsController.getOrganization(response, 'anyid');
       expect(organizationsService.findOne).toHaveBeenCalled();
     });
 
     it('should throw if OrganizationsService findOne throws', async () => {
-      jest.spyOn(organizationsService, 'findOne').mockRejectedValueOnce(new Error());
-      await expect(organizationsController.getOrganization(response, 'anyid')).rejects.toThrow(new Error());
+      jest
+        .spyOn(organizationsService, 'findOne')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        organizationsController.getOrganization(response, 'anyid'),
+      ).rejects.toThrow(new NotFoundException());
     });
 
     it('should return a organization on success', async () => {
@@ -110,13 +140,19 @@ describe('Organizations Controller', () => {
   describe('addOrganization()', () => {
     it('should call method create in OrganizationsService with correct values', async () => {
       const createSpy = jest.spyOn(organizationsService, 'create');
-      await organizationsController.addOrganization(response, createOrganizationDto);
+      await organizationsController.addOrganization(
+        response,
+        createOrganizationDto,
+      );
       expect(createSpy).toHaveBeenCalledWith(createOrganizationDto);
-    })
+    });
 
     it('should return a organization on success', async () => {
       const createOrganizationSpy = jest.spyOn(organizationsService, 'create');
-      await organizationsController.addOrganization(response, createOrganizationDto)
+      await organizationsController.addOrganization(
+        response,
+        createOrganizationDto,
+      );
       expect(createOrganizationSpy).toHaveBeenCalledWith(createOrganizationDto);
     });
   });
@@ -124,7 +160,11 @@ describe('Organizations Controller', () => {
   describe('updateOrganization()', () => {
     it('should call method update in OrganizationsService with correct values', async () => {
       const updateSpy = jest.spyOn(organizationsService, 'update');
-      await organizationsController.updateOrganization(response, 'anyid', updateOrganizationDto);
+      await organizationsController.updateOrganization(
+        response,
+        'anyid',
+        updateOrganizationDto,
+      );
       expect(updateSpy).toHaveBeenCalledWith('anyid', updateOrganizationDto);
     });
   });
@@ -134,11 +174,15 @@ describe('Organizations Controller', () => {
       const deleteSpy = jest.spyOn(organizationsService, 'remove');
       await organizationsController.deleteOrganization(response, 'anyid');
       expect(deleteSpy).toHaveBeenCalledWith('anyid');
-    })
+    });
 
     it('should throw error if id in OrganizationsService not exists', async () => {
-      jest.spyOn(organizationsService, 'remove').mockRejectedValueOnce(new Error());
-      await expect(organizationsController.deleteOrganization(response, 'anyid')).rejects.toThrow(new Error())
+      jest
+        .spyOn(organizationsService, 'remove')
+        .mockRejectedValueOnce(new NotFoundException());
+      await expect(
+        organizationsController.deleteOrganization(response, 'anyid'),
+      ).rejects.toThrow(new NotFoundException());
     });
   });
 });
